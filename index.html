@@ -1,0 +1,1777 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JEE Physics Mission Control</title>
+
+<style>
+:root{
+  --blue:#4776ff;
+  --purple:#8057ed;
+  --green:#17b978;
+  --orange:#f5a623;
+  --red:#ef5c75;
+  --bg:#f3f6fc;
+  --text:#18233c;
+  --muted:#71809c;
+  --border:#e7ebf5;
+  --shadow:0 8px 28px rgba(31,52,100,.07);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 5% 5%,#dce8ff 0,transparent 27%),
+    radial-gradient(circle at 95% 30%,#e9e1ff 0,transparent 25%),
+    #f5f7fc;
+  font-family:Inter,Arial,sans-serif;
+}
+
+header{
+  background:linear-gradient(120deg,#101b3b,#233e86,#456df0);
+  color:white;
+  padding:30px 20px;
+  position:relative;
+  overflow:hidden;
+}
+
+header:after{
+  content:"";
+  position:absolute;
+  width:300px;
+  height:300px;
+  right:-80px;
+  top:-170px;
+  border:1px solid #ffffff30;
+  border-radius:50%;
+  box-shadow:0 0 0 35px #ffffff09,0 0 0 75px #ffffff06;
+}
+
+.header-inner{
+  max-width:1200px;
+  margin:auto;
+  position:relative;
+  z-index:1;
+}
+
+header h1{
+  margin:0 0 8px;
+  font-size:30px;
+  font-weight:850;
+  letter-spacing:-1px;
+}
+
+header p{
+  margin:0;
+  color:#d5e2ff;
+  font-size:14px;
+}
+
+main{
+  max-width:1200px;
+  margin:25px auto;
+  padding:0 15px 50px;
+}
+
+/* COUNTDOWN */
+
+.countdown{
+  position:relative;
+  overflow:hidden;
+  color:white;
+  text-align:center;
+  padding:32px 18px 26px;
+  margin-bottom:23px;
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 15% 15%,#5f91ff70,transparent 35%),
+    radial-gradient(circle at 85% 80%,#a16cff55,transparent 35%),
+    linear-gradient(125deg,#101a39,#1d3b82 55%,#5438a8);
+  box-shadow:0 18px 40px #263d8635;
+}
+
+.countdown:before,
+.countdown:after{
+  content:"";
+  position:absolute;
+  border:1px solid #ffffff20;
+  border-radius:50%;
+  pointer-events:none;
+}
+
+.countdown:before{
+  width:280px;height:280px;
+  top:-190px;right:-65px;
+}
+
+.countdown:after{
+  width:220px;height:220px;
+  bottom:-170px;left:-65px;
+}
+
+.countdown-content{position:relative;z-index:1}
+
+.countdown-kicker{
+  display:inline-block;
+  padding:7px 15px;
+  border:1px solid #ffffff45;
+  border-radius:30px;
+  background:#ffffff16;
+  color:#dbe8ff;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:2px;
+}
+
+.countdown h2{
+  margin:15px 0 7px;
+  font-size:27px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.countdown-subtitle{
+  color:#d5e2ff;
+  font-size:13px;
+  margin-bottom:23px;
+}
+
+.timer{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,110px));
+  justify-content:center;
+  gap:12px;
+}
+
+.time-box{
+  padding:17px 5px 13px;
+  border:1px solid #ffffff38;
+  border-radius:16px;
+  background:linear-gradient(145deg,#ffffff2c,#ffffff0b);
+  box-shadow:inset 0 1px 0 #ffffff35;
+  backdrop-filter:blur(10px);
+  animation:float 4s ease-in-out infinite;
+}
+
+.time-box:nth-child(2){animation-delay:.3s}
+.time-box:nth-child(3){animation-delay:.6s}
+.time-box:nth-child(4){animation-delay:.9s}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-5px)}
+}
+
+.time-box strong{
+  display:block;
+  font-size:38px;
+  font-weight:900;
+  line-height:1.1;
+  color:white;
+  font-variant-numeric:tabular-nums;
+}
+
+.time-box span{
+  display:block;
+  margin-top:8px;
+  color:#c8d9ff;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:2px;
+}
+
+.countdown-track{
+  width:min(440px,90%);
+  height:7px;
+  background:#ffffff30;
+  border-radius:20px;
+  margin:23px auto 10px;
+  overflow:hidden;
+}
+
+.countdown-track div{
+  height:100%;
+  border-radius:20px;
+  background:linear-gradient(90deg,#40e0d0,#a4f4ff,#fff);
+  transition:width .5s;
+}
+
+#countdownMessage{
+  color:#e1eaff;
+  font-size:13px;
+  margin:13px 0 0;
+  min-height:18px;
+}
+
+.deadline{
+  font-size:10px;
+  color:#b9ceff;
+  margin-top:10px;
+  letter-spacing:1px;
+}
+
+/* NAVIGATION */
+
+.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-bottom:20px;
+}
+
+.tab{
+  border:1px solid #e3e8f3;
+  background:#ffffffd9;
+  color:#53617c;
+  padding:11px 15px;
+  border-radius:11px;
+  cursor:pointer;
+  font-weight:750;
+  font-size:12px;
+  transition:.2s;
+}
+
+.tab:hover{
+  transform:translateY(-2px);
+  border-color:#9bb6ff;
+  color:var(--blue);
+}
+
+.tab.active{
+  background:linear-gradient(120deg,#3268f0,#7656e9);
+  color:white;
+  border-color:transparent;
+  box-shadow:0 5px 14px #4776ff40;
+}
+
+.panel{display:none}
+
+.panel.active{
+  display:block;
+  animation:fadeIn .35s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* CARDS */
+
+.card{
+  background:#ffffffed;
+  border:1px solid #e9edf6;
+  border-radius:18px;
+  padding:21px;
+  margin-bottom:17px;
+  box-shadow:var(--shadow);
+}
+
+.card h2{
+  font-size:18px;
+  margin:0 0 17px;
+  font-weight:850;
+  letter-spacing:-.3px;
+}
+
+.card h3{
+  font-size:15px;
+  margin:0 0 13px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:14px;
+}
+
+.stat{
+  position:relative;
+  overflow:hidden;
+  background:white;
+  border:1px solid #e7ebf5;
+  padding:19px;
+  border-radius:17px;
+  box-shadow:var(--shadow);
+  transition:.25s;
+}
+
+.stat:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 25px #263d8618;
+}
+
+.stat:after{
+  content:"";
+  position:absolute;
+  width:80px;height:80px;
+  right:-25px;bottom:-35px;
+  background:#edf2ff;
+  border-radius:50%;
+}
+
+.stat span{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:700;
+}
+
+.stat strong{
+  display:block;
+  font-size:30px;
+  margin-top:9px;
+  font-weight:900;
+  letter-spacing:-1px;
+  color:#294eae;
+}
+
+.stat small{
+  display:block;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+/* FORMS */
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:750;
+  margin:0 0 7px;
+}
+
+input,select,textarea{
+  width:100%;
+  padding:12px 13px;
+  border:1px solid #dce3f1;
+  border-radius:11px;
+  font-size:14px;
+  background:#fbfcff;
+  color:var(--text);
+  transition:.2s;
+}
+
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:#7094ff;
+  box-shadow:0 0 0 4px #4776ff18;
+  background:white;
+}
+
+.field{margin-bottom:15px}
+
+/* BUTTONS */
+
+button{
+  border:0;
+  border-radius:10px;
+  padding:11px 16px;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+  transition:.2s;
+}
+
+button:hover{transform:translateY(-2px)}
+button:active{transform:scale(.97)}
+
+.primary{
+  background:linear-gradient(120deg,#3268f0,#7656e9);
+  color:white;
+  box-shadow:0 5px 13px #4776ff30;
+}
+
+.secondary{
+  background:#eaf0ff;
+  color:#3158b4;
+}
+
+.danger{
+  background:#fff0f1;
+  color:#c83e55;
+}
+
+.pdf-button{
+  background:linear-gradient(120deg,#2458d9,#7953e8);
+  color:white;
+  padding:12px 18px;
+  box-shadow:0 5px 15px #4776ff35;
+}
+
+.actions{
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+  margin-top:13px;
+}
+
+/* PROGRESS */
+
+.progress{
+  height:10px;
+  background:#edf0f7;
+  border-radius:30px;
+  overflow:hidden;
+  margin:9px 0;
+}
+
+.progress div{
+  height:100%;
+  background:linear-gradient(90deg,#4776ff,#8a61ef);
+  border-radius:30px;
+  transition:width .6s ease;
+}
+
+.progress.green div{
+  background:linear-gradient(90deg,#11a977,#4cdbac);
+}
+
+.progress.orange div{
+  background:linear-gradient(90deg,#ed8b24,#ffc45a);
+}
+
+.muted{
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* TABLES */
+
+.table-wrap{overflow-x:auto}
+
+table{
+  border-collapse:collapse;
+  width:100%;
+  min-width:650px;
+  font-size:13px;
+}
+
+th,td{
+  border-bottom:1px solid #edf0f6;
+  padding:12px 10px;
+  text-align:left;
+  white-space:nowrap;
+}
+
+th{
+  background:#f3f6fd;
+  color:#51617f;
+  font-weight:800;
+}
+
+tr:hover td{background:#fafbff}
+
+/* NOTICES AND CHECKLIST */
+
+.notice{
+  padding:14px;
+  border-radius:12px;
+  background:#edf3ff;
+  color:#3156a5;
+  font-size:13px;
+  line-height:1.6;
+  margin-bottom:14px;
+}
+
+.warning{
+  background:#fff5e9;
+  color:#a65b13;
+}
+
+.check-row{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  padding:12px 0;
+  border-bottom:1px solid #edf0f6;
+  font-size:14px;
+}
+
+.check-row input{
+  width:auto;
+  margin-top:2px;
+  accent-color:var(--blue);
+}
+
+.check-row span{flex:1}
+
+.history-item{
+  border-bottom:1px solid #edf0f6;
+  padding:13px 0;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  font-size:13px;
+}
+
+.empty{
+  color:var(--muted);
+  font-size:13px;
+  padding:12px 0;
+}
+
+.small-btn{padding:7px 10px;font-size:11px}
+
+footer{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  padding:20px;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+  header h1{font-size:23px}
+  .countdown{padding:25px 12px}
+  .countdown h2{font-size:21px}
+  .timer{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .time-box{padding:14px 2px 11px}
+  .time-box strong{font-size:25px}
+  .time-box span{font-size:8px;letter-spacing:1px}
+  .card{padding:15px}
+  .tab{padding:9px 11px;font-size:11px}
+  .stat strong{font-size:26px}
+}
+
+/* PRINT REPORT */
+
+@media print{
+
+  @page{
+    size:A4 landscape;
+    margin:12mm;
+  }
+
+  body{
+    background:white!important;
+    color:#18233c!important;
+    font-size:10px;
+  }
+
+  header{
+    background:#1e3a8a!important;
+    color:white!important;
+    print-color-adjust:exact;
+    -webkit-print-color-adjust:exact;
+    padding:18px;
+  }
+
+  header h1{font-size:23px}
+
+  main{
+    max-width:none;
+    margin:10px auto;
+    padding:0;
+  }
+
+  .tabs,
+  .no-print,
+  button,
+  footer{
+    display:none!important;
+  }
+
+  .panel{
+    display:block!important;
+    break-before:page;
+  }
+
+  #dashboard{break-before:auto}
+
+  #entry,
+  #settings{
+    display:none!important;
+  }
+
+  .card,.stat,.countdown{
+    box-shadow:none!important;
+    break-inside:avoid;
+  }
+
+  .countdown{
+    print-color-adjust:exact;
+    -webkit-print-color-adjust:exact;
+  }
+
+  .table-wrap{overflow:visible!important}
+
+  table{
+    width:100%;
+    min-width:0!important;
+    font-size:9px;
+    border-collapse:collapse;
+  }
+
+  th,td{
+    padding:6px 5px;
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+
+  th{
+    background:#eaf0ff!important;
+    print-color-adjust:exact;
+    -webkit-print-color-adjust:exact;
+  }
+
+  .progress{
+    print-color-adjust:exact;
+    -webkit-print-color-adjust:exact;
+  }
+
+  .check-row{break-inside:avoid}
+
+  .report-heading{
+    font-size:20px;
+    color:#254ca4;
+    border-bottom:2px solid #4776ff;
+    padding-bottom:8px;
+    margin-bottom:18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>JEE Physics | Mission Control</h1>
+    <p>Your personal Eduniti JEE Main 2027 preparation dashboard</p>
+  </div>
+</header>
+
+<main>
+
+<section class="countdown">
+  <div class="countdown-content">
+    <div class="countdown-kicker">YOUR PHYSICS MISSION</div>
+    <h2>THE FINAL COUNTDOWN</h2>
+    <div class="countdown-subtitle">
+      Every question takes you one step closer to your goal.
+    </div>
+
+    <div class="timer">
+      <div class="time-box">
+        <strong id="days">--</strong>
+        <span>DAYS</span>
+      </div>
+      <div class="time-box">
+        <strong id="hours">--</strong>
+        <span>HOURS</span>
+      </div>
+      <div class="time-box">
+        <strong id="minutes">--</strong>
+        <span>MINUTES</span>
+      </div>
+      <div class="time-box">
+        <strong id="seconds">--</strong>
+        <span>SECONDS</span>
+      </div>
+    </div>
+
+    <div class="countdown-track">
+      <div id="countdownBar" style="width:0%"></div>
+    </div>
+
+    <p id="countdownMessage">
+      Stay consistent. Your hard work is adding up!
+    </p>
+
+    <div class="deadline">
+      MISSION DEADLINE · 31 DECEMBER 2026 · 11:59 PM IST
+    </div>
+  </div>
+</section>
+
+<div class="actions no-print" style="margin-bottom:16px">
+  <button class="pdf-button" onclick="exportPDF()">
+    ↓ Export Complete Progress Report
+  </button>
+</div>
+
+<nav class="tabs no-print">
+  <button class="tab active" data-tab="dashboard">Dashboard</button>
+  <button class="tab" data-tab="entry">Add MCQs</button>
+  <button class="tab" data-tab="chapters">Chapters & Limits</button>
+  <button class="tab" data-tab="sources">Source Progress</button>
+  <button class="tab" data-tab="planner">Study Planner</button>
+  <button class="tab" data-tab="checklist">PDF Checklist</button>
+  <button class="tab" data-tab="history">History</button>
+  <button class="tab" data-tab="settings">Backup & Reset</button>
+</nav>
+
+<!-- DASHBOARD -->
+<section class="panel active" id="dashboard">
+
+  <h2 class="report-heading">01 · Dashboard</h2>
+
+  <div class="grid">
+    <div class="stat">
+      <span>Total MCQs completed</span>
+      <strong id="totalDone">0</strong>
+      <small>Across all sources</small>
+    </div>
+
+    <div class="stat">
+      <span>Overall target</span>
+      <strong id="overallTarget">2287</strong>
+      <small>Questions</small>
+    </div>
+
+    <div class="stat">
+      <span>Overall completion</span>
+      <strong id="overallPercent">0%</strong>
+      <small id="overallRemaining">2287 remaining</small>
+    </div>
+
+    <div class="stat">
+      <span>Active chapters</span>
+      <strong id="activeChapters">0</strong>
+      <small>Chapters with progress</small>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:17px">
+    <h2>Overall Mission Progress</h2>
+    <div class="progress">
+      <div id="overallBar" style="width:0%"></div>
+    </div>
+    <p class="muted" id="overallCaption"></p>
+  </div>
+
+  <div class="card">
+    <h2>Source-wise Progress</h2>
+    <div id="dashboardSources"></div>
+  </div>
+
+  <div class="card">
+    <h2>Chapter Progress</h2>
+    <div id="dashboardChapters"></div>
+  </div>
+</section>
+
+<!-- ENTRY -->
+<section class="panel" id="entry">
+  <div class="card">
+    <h2>Add Completed MCQs</h2>
+
+    <div class="notice">
+      Add the number of questions you completed. The entry date and exact
+      save time are recorded automatically.
+    </div>
+
+    <div class="field">
+      <label>Question source / block</label>
+      <select id="source"></select>
+    </div>
+
+    <div class="field">
+      <label>Chapter</label>
+      <select id="chapter"></select>
+    </div>
+
+    <div class="field">
+      <label>Questions completed</label>
+      <input type="number" id="quantity" min="1" value="1">
+    </div>
+
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="entryDate">
+    </div>
+
+    <div class="field">
+      <label>Time spent (minutes)</label>
+      <input type="number" id="timeSpent" min="0" placeholder="e.g. 45">
+    </div>
+
+    <div class="field">
+      <label>Notes (optional)</label>
+      <textarea id="entryNote" rows="2"
+        placeholder="Accuracy, mistakes, revision notes..."></textarea>
+    </div>
+
+    <button class="primary" id="addEntry">Save MCQs</button>
+    <p id="entryMessage" class="muted"></p>
+  </div>
+
+  <div class="card">
+    <h3>Selected Chapter Limit</h3>
+    <div id="selectedLimitInfo" class="muted">
+      Choose a source and chapter.
+    </div>
+  </div>
+</section>
+
+<!-- CHAPTERS -->
+<section class="panel" id="chapters">
+
+  <h2 class="report-heading">02 · Chapters & Limits</h2>
+
+  <div class="card">
+    <h2>Chapter-wise Yearly Limits</h2>
+
+    <div class="notice">
+      Chapter limits are shown separately for each year.
+    </div>
+
+    <div class="table-wrap">
+      <table id="limitsTable">
+        <thead>
+          <tr>
+            <th>Chapter</th>
+            <th>2019</th>
+            <th>2020</th>
+            <th>2021</th>
+            <th>2022</th>
+            <th>2023</th>
+            <th>2024</th>
+            <th>2025</th>
+            <th>2026</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Chapter-wise Completion</h2>
+    <div id="chapterProgress"></div>
+  </div>
+
+  <div class="card">
+    <h2>Theoretical & Rank Booster Limits</h2>
+    <div class="table-wrap">
+      <table id="extraLimitsTable">
+        <thead>
+          <tr>
+            <th>Chapter</th>
+            <th>Theoretical</th>
+            <th>Rank Booster</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="panel" id="sources">
+  <h2 class="report-heading">03 · Source Progress</h2>
+
+  <div class="card">
+    <h2>Year-wise PYQ Progress</h2>
+    <div id="yearProgress"></div>
+  </div>
+
+  <div class="card">
+    <h2>Other Question Sources</h2>
+    <div id="otherSourceProgress"></div>
+  </div>
+
+  <div class="card">
+    <h2>Extra Challenge Progress</h2>
+    <div id="challengeProgress"></div>
+  </div>
+</section>
+
+<!-- PLANNER -->
+<section class="panel" id="planner">
+  <h2 class="report-heading">04 · Study Planner</h2>
+
+  <div class="card">
+    <h2>Study Planner</h2>
+
+    <div class="field no-print">
+      <label>Task name</label>
+      <input id="taskName"
+        placeholder="e.g. Complete Electrostatics PYQs">
+    </div>
+
+    <div class="field no-print">
+      <label>Due date</label>
+      <input type="date" id="taskDate">
+    </div>
+
+    <button class="primary no-print" id="addTask">Add Task</button>
+
+    <div id="taskList" style="margin-top:15px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Suggested Preparation Timeline</h2>
+    <div class="check-row"><span>Main PYQ sets: 22–27 days</span></div>
+    <div class="check-row"><span>Rank Booster and Sure Shot: 5 days</span></div>
+    <div class="check-row"><span>Graphical, Experiment & Instrument, Circuit: 3 days</span></div>
+    <div class="check-row"><span>Revision 1: 5 days</span></div>
+    <div class="check-row"><span>Revision 2: 5 days</span></div>
+  </div>
+</section>
+
+<!-- CHECKLIST -->
+<section class="panel" id="checklist">
+  <h2 class="report-heading">05 · Complete PDF Checklist</h2>
+
+  <div class="card">
+    <h2>Eduniti PDF Checklist</h2>
+    <p class="muted">
+      Both completed and pending checklist items appear in your exported PDF.
+    </p>
+    <div id="checklistItems"></div>
+  </div>
+</section>
+
+<!-- HISTORY -->
+<section class="panel" id="history">
+  <h2 class="report-heading">06 · Detailed MCQ History</h2>
+
+  <div class="card">
+    <h2>MCQ Entry History</h2>
+    <p class="muted">
+      Every saved entry includes its date, save time, source, chapter,
+      MCQ count, time spent and notes.
+    </p>
+    <div id="historyList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Study Time Summary</h2>
+    <div class="grid">
+      <div class="stat">
+        <span>Total recorded study time</span>
+        <strong id="totalStudyTime">0</strong>
+        <small>Minutes</small>
+      </div>
+      <div class="stat">
+        <span>Total recorded sessions</span>
+        <strong id="totalSessions">0</strong>
+        <small>Saved MCQ entries</small>
+      </div>
+      <div class="stat">
+        <span>Average MCQs per session</span>
+        <strong id="averageSession">0</strong>
+        <small>Questions</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="panel" id="settings">
+  <div class="card">
+    <h2>Export Your Progress</h2>
+    <p class="muted">
+      Export your complete progress report or download your MCQ history.
+    </p>
+    <div class="actions">
+      <button class="pdf-button" onclick="exportPDF()">↓ Export Complete PDF</button>
+      <button class="primary" id="exportCSV">Export CSV</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Reset Tracker</h2>
+    <div class="notice warning">
+      This deletes MCQ entries, checklist ticks and planner tasks.
+      Built-in PDF limits remain unchanged.
+    </div>
+    <button class="danger" id="resetAll">Reset All Progress</button>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  JEE Physics Mission Control · Keep learning, keep improving.
+</footer>
+
+<script>
+
+/* CHAPTERS */
+
+const chapters=[
+"Kinematics",
+"Laws of Motion",
+"Gravitation",
+"Electrostatics",
+"Capacitor",
+"Units Dimensions Errors & Vectors",
+"KTG & Thermodynamics",
+"Current Electricity",
+"Moving Charges & MEC",
+"Modern Physics",
+"Rotational Motion",
+"WEP & Circular Motion",
+"Properties of Solids",
+"Electromagnetic Induction",
+"Alternating Current",
+"Ray Optics",
+"Semiconductors",
+"COM & Collision",
+"EM Waves",
+"Thermal Properties & Heat Transfer",
+"SHM",
+"Wave Motion",
+"Wave Optics",
+"Fluid Mechanics"
+];
+
+/* YEARLY LIMITS */
+
+const years={
+"2019 ALL PYQs":{
+total:406,
+limits:[22,9,15,24,17,14,30,41,24,24,28,8,6,12,6,23,11,13,13,16,13,14,11,12]
+},
+"JEE Main 2020":{
+total:100,
+limits:[3,3,5,7,4,3,4,5,7,7,7,3,2,5,1,5,3,5,3,3,3,4,3,5]
+},
+"JEE Main 2021":{
+total:200,
+limits:[6,10,9,12,12,13,10,8,8,10,10,8,4,11,8,11,10,6,4,5,10,5,6,4]
+},
+"JEE Main 2022":{
+total:200,
+limits:[11,6,5,9,9,11,8,10,13,15,5,9,4,6,9,9,11,5,7,5,5,7,6,8]
+},
+"JEE Main 2023":{
+total:200,
+limits:[7,2,6,11,6,8,8,14,10,30,9,10,6,11,5,13,6,3,3,4,6,7,8,7]
+},
+"JEE Main 2024":{
+total:200,
+limits:[9,7,8,10,8,9,6,16,14,19,7,7,5,8,10,7,9,5,6,1,6,5,10,8]
+},
+"JEE Main 2025":{
+total:200,
+limits:[8,4,5,13,9,8,8,6,14,15,11,5,5,7,5,20,5,5,5,7,8,6,11,10]
+},
+"JEE Main 2026":{
+total:200,
+limits:[8,6,4,12,7,10,8,7,8,15,12,5,6,11,6,17,9,5,7,7,6,6,8,6]
+}
+};
+
+/* THEORETICAL AND RANK BOOSTER LIMITS */
+
+const theoreticalLimits=[
+5,4,6,0,1,1,10,6,15,17,0,2,1,6,9,7,13,2,14,0,2,0,0,3
+];
+
+const rankBoosterLimits=[
+15,15,15,20,15,0,15,20,20,30,15,20,15,0,0,15,0,0,0,0,15,15,0,0
+];
+
+const chapterReference=[
+79,51,68,104,73,77,92,117,103,152,89,57,
+39,77,59,112,77,49,62,48,59,54,69,63
+];
+
+const challengeTargets={
+"Graphical Questions":100,
+"Experiment & Instrument":30,
+"Circuit Questions":50
+};
+
+const otherTargets={
+"Theoretical Questions":141,
+"Rank Booster Questions":260
+};
+
+const checklistLabels=[
+"2019 ALL PYQs",
+"TOP 100 JEE 2020",
+"TOP 200 JEE 2021",
+"TOP 200 JEE 2022",
+"TOP 200 JEE 2023",
+"TOP 200 JEE 2024",
+"TOP 200 JEE 2025",
+"TOP 200 JEE 2026",
+"141 Theoretical Questions",
+"RBS 1.0",
+"Sure Shot",
+"Graphical Questions",
+"Experiment & Instrument Questions",
+"Top 50 Circuit Questions",
+"Formulae Marathon – Class 11th",
+"Formulae Marathon – Class 12th",
+"NCERT Read – KTG & Thermodynamics",
+"NCERT Read – Modern Physics",
+"NCERT Read – Electromagnetic Induction",
+"NCERT Read – Semiconductors",
+"NCERT Read – EM Waves",
+"NCERT Read – Wave Optics",
+"NCERT Read – Fluid Mechanics",
+"Revision 1",
+"Revision 2"
+];
+
+const yearNames=Object.keys(years);
+
+const overallTarget=
+Object.values(years).reduce((s,y)=>s+y.total,0)+
+Object.values(otherTargets).reduce((s,v)=>s+v,0)+
+Object.values(challengeTargets).reduce((s,v)=>s+v,0);
+
+/* STORAGE */
+
+const STORAGE_KEY="jeeMissionControl_v9";
+
+function freshStore(){
+  return{entries:[],tasks:[],checklist:{}};
+}
+
+let store=freshStore();
+
+try{
+  const saved=localStorage.getItem(STORAGE_KEY);
+  if(saved){
+    const p=JSON.parse(saved);
+    store={
+      entries:Array.isArray(p.entries)?p.entries:[],
+      tasks:Array.isArray(p.tasks)?p.tasks:[],
+      checklist:p.checklist||{}
+    };
+  }
+}catch(e){
+  store=freshStore();
+}
+
+function save(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(store));
+}
+
+/* UTILITIES */
+
+const $=id=>document.getElementById(id);
+
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[c]));
+}
+
+function fmt(n){
+  return Number(n||0).toLocaleString("en-IN");
+}
+
+function sum(a){
+  return a.reduce((x,y)=>x+y,0);
+}
+
+function pct(done,target){
+  return target?Math.min(100,Math.round(done/target*100)):0;
+}
+
+function sourceTarget(s){
+  return years[s]?.total??otherTargets[s]??challengeTargets[s]??0;
+}
+
+function getDone(s,i){
+  return store.entries
+    .filter(e=>e.source===s&&e.chapterIndex===i)
+    .reduce((a,e)=>a+Number(e.quantity),0);
+}
+
+function getSourceDone(s){
+  return store.entries
+    .filter(e=>e.source===s)
+    .reduce((a,e)=>a+Number(e.quantity),0);
+}
+
+function totalDone(){
+  return store.entries.reduce((a,e)=>a+Number(e.quantity),0);
+}
+
+function chapterLimit(s,i){
+  if(years[s])return years[s].limits[i]||0;
+  if(s==="Theoretical Questions")return theoreticalLimits[i]||0;
+  if(s==="Rank Booster Questions")return rankBoosterLimits[i]||0;
+  if(challengeTargets[s])return Infinity;
+  return 0;
+}
+
+function bar(done,target,cls=""){
+  return `<div class="progress ${cls}">
+    <div style="width:${pct(done,target)}%"></div>
+  </div>`;
+}
+
+function getTotalMinutes(){
+  return store.entries.reduce(
+    (a,e)=>a+Number(e.durationMinutes||0),0
+  );
+}
+
+/* NAVIGATION */
+
+document.querySelectorAll(".tab").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    $(b.dataset.tab).classList.add("active");
+    renderAll();
+  });
+});
+
+/* ENTRY FORM */
+
+function populateForm(){
+  const sources=[
+    ...yearNames,
+    ...Object.keys(otherTargets),
+    ...Object.keys(challengeTargets)
+  ];
+
+  $("source").innerHTML=sources
+    .map(s=>`<option>${esc(s)}</option>`).join("");
+
+  $("chapter").innerHTML=chapters
+    .map((c,i)=>`<option value="${i}">${esc(c)}</option>`).join("");
+
+  $("entryDate").value=getLocalDate();
+  updateLimitInfo();
+}
+
+function getLocalDate(){
+  const d=new Date();
+  const offset=d.getTimezoneOffset()*60000;
+  return new Date(d.getTime()-offset).toISOString().slice(0,10);
+}
+
+function updateLimitInfo(){
+  const s=$("source").value;
+  const i=Number($("chapter").value);
+  const lim=chapterLimit(s,i);
+  const done=getDone(s,i);
+
+  $("selectedLimitInfo").innerHTML=`
+    <p><b>${esc(chapters[i])}</b></p>
+    <p>Completed: ${fmt(done)}</p>
+    <p>Chapter limit: ${Number.isFinite(lim)?fmt(lim):"Global source limit"}</p>
+    ${bar(done,Number.isFinite(lim)?lim:sourceTarget(s))}
+  `;
+}
+
+$("source").addEventListener("change",updateLimitInfo);
+$("chapter").addEventListener("change",updateLimitInfo);
+
+$("addEntry").addEventListener("click",()=>{
+  const s=$("source").value;
+  const i=Number($("chapter").value);
+  const q=Number($("quantity").value);
+  const date=$("entryDate").value;
+  const duration=Number($("timeSpent").value)||0;
+
+  if(!Number.isInteger(q)||q<=0){
+    $("entryMessage").textContent="Enter a valid positive number of MCQs.";
+    return;
+  }
+
+  if(!date){
+    $("entryMessage").textContent="Select a date.";
+    return;
+  }
+
+  if(!Number.isFinite(duration)||duration<0){
+    $("entryMessage").textContent="Enter valid time spent.";
+    return;
+  }
+
+  const lim=chapterLimit(s,i);
+  const done=getDone(s,i);
+  const target=sourceTarget(s);
+  const sourceDone=getSourceDone(s);
+
+  if(Number.isFinite(lim)&&done+q>lim){
+    $("entryMessage").textContent=
+      `Chapter limit exceeded. Maximum for ${chapters[i]} in ${s}: ${lim}.`;
+    return;
+  }
+
+  if(sourceDone+q>target){
+    $("entryMessage").textContent=
+      `Source limit exceeded. Maximum: ${target}.`;
+    return;
+  }
+
+  const now=new Date();
+
+  store.entries.push({
+    id:Date.now()+"_"+Math.random(),
+    source:s,
+    chapterIndex:i,
+    chapter:chapters[i],
+    quantity:q,
+    date,
+    time:now.toLocaleTimeString("en-IN",{
+      hour:"2-digit",
+      minute:"2-digit",
+      second:"2-digit",
+      hour12:true
+    }),
+    durationMinutes:duration,
+    note:$("entryNote").value.trim()
+  });
+
+  save();
+
+  $("quantity").value=1;
+  $("timeSpent").value="";
+  $("entryNote").value="";
+  $("entryMessage").textContent="Saved successfully!";
+
+  renderAll();
+});
+
+/* DASHBOARD */
+
+function renderDashboard(){
+  const done=totalDone();
+  const p=pct(done,overallTarget);
+
+  $("totalDone").textContent=fmt(done);
+  $("overallTarget").textContent=fmt(overallTarget);
+  $("overallPercent").textContent=p+"%";
+  $("overallRemaining").textContent=
+    fmt(Math.max(0,overallTarget-done))+" remaining";
+
+  $("overallBar").style.width=p+"%";
+  $("overallCaption").textContent=
+    `${fmt(done)} of ${fmt(overallTarget)} questions completed`;
+
+  $("activeChapters").textContent=
+    new Set(store.entries.map(e=>e.chapterIndex)).size;
+
+  const sources=[
+    ...yearNames,
+    ...Object.keys(otherTargets),
+    ...Object.keys(challengeTargets)
+  ];
+
+  $("dashboardSources").innerHTML=sources.map(s=>{
+    const n=getSourceDone(s);
+    const t=sourceTarget(s);
+
+    return `
+      <div style="margin-bottom:14px">
+        <b>${esc(s)}</b>
+        <span class="muted" style="float:right">${fmt(n)} / ${fmt(t)}</span>
+        ${bar(n,t)}
+      </div>`;
+  }).join("");
+
+  $("dashboardChapters").innerHTML=chapters.map((c,i)=>{
+    const n=store.entries
+      .filter(e=>e.chapterIndex===i)
+      .reduce((a,e)=>a+Number(e.quantity),0);
+
+    return `
+      <div style="margin-bottom:12px">
+        <b>${esc(c)}</b>
+        <span class="muted" style="float:right">${fmt(n)} completed</span>
+        ${bar(n,chapterReference[i])}
+      </div>`;
+  }).join("");
+}
+
+/* CHAPTER LIMITS */
+
+function renderLimits(){
+  $("limitsTable").querySelector("tbody").innerHTML=
+    chapters.map((c,i)=>{
+      const vals=yearNames.map(y=>years[y].limits[i]);
+
+      return `
+        <tr>
+          <td><b>${esc(c)}</b></td>
+          ${vals.map(v=>`<td>${v}</td>`).join("")}
+          <td><b>${sum(vals)}</b></td>
+        </tr>`;
+    }).join("");
+
+  $("chapterProgress").innerHTML=chapters.map((c,i)=>{
+    const n=store.entries
+      .filter(e=>e.chapterIndex===i)
+      .reduce((a,e)=>a+Number(e.quantity),0);
+
+    return `
+      <div style="margin-bottom:13px">
+        <b>${esc(c)}</b>
+        <span class="muted" style="float:right">${fmt(n)} completed</span>
+        ${bar(n,chapterReference[i])}
+      </div>`;
+  }).join("");
+
+  $("extraLimitsTable").querySelector("tbody").innerHTML=
+    chapters.map((c,i)=>`
+      <tr>
+        <td>${esc(c)}</td>
+        <td>${theoreticalLimits[i]||"—"}</td>
+        <td>${rankBoosterLimits[i]||"—"}</td>
+      </tr>`
+    ).join("");
+}
+
+/* SOURCE PROGRESS */
+
+function renderSources(){
+  $("yearProgress").innerHTML=yearNames.map(s=>{
+    const n=getSourceDone(s);
+    const t=sourceTarget(s);
+
+    return `
+      <div style="margin-bottom:15px">
+        <b>${esc(s)}</b>
+        <span class="muted" style="float:right">${fmt(n)} / ${fmt(t)}</span>
+        ${bar(n,t)}
+      </div>`;
+  }).join("");
+
+  $("otherSourceProgress").innerHTML=
+    Object.entries(otherTargets).map(([s,t])=>{
+      const n=getSourceDone(s);
+
+      return `
+        <div style="margin-bottom:15px">
+          <b>${esc(s)}</b>
+          <span class="muted" style="float:right">${fmt(n)} / ${fmt(t)}</span>
+          ${bar(n,t)}
+        </div>`;
+    }).join("");
+
+  $("challengeProgress").innerHTML=
+    Object.entries(challengeTargets).map(([s,t])=>{
+      const n=getSourceDone(s);
+
+      return `
+        <div style="margin-bottom:15px">
+          <b>${esc(s)}</b>
+          <span class="muted" style="float:right">${fmt(n)} / ${fmt(t)}</span>
+          ${bar(n,t,"orange")}
+        </div>`;
+    }).join("");
+}
+
+/* STUDY PLANNER */
+
+$("addTask").addEventListener("click",()=>{
+  const name=$("taskName").value.trim();
+  const date=$("taskDate").value;
+
+  if(!name){
+    alert("Enter a task name.");
+    return;
+  }
+
+  store.tasks.push({
+    id:Date.now()+"_"+Math.random(),
+    name,
+    date,
+    done:false
+  });
+
+  $("taskName").value="";
+  $("taskDate").value="";
+  save();
+  renderTasks();
+});
+
+function renderTasks(){
+  if(!store.tasks.length){
+    $("taskList").innerHTML=
+      '<p class="empty">No planner tasks yet.</p>';
+    return;
+  }
+
+  $("taskList").innerHTML=store.tasks
+    .slice()
+    .sort((a,b)=>(a.date||"").localeCompare(b.date||""))
+    .map(t=>`
+      <div class="history-item">
+        <div style="flex:1">
+          <label style="display:flex;gap:8px;align-items:center">
+            <input type="checkbox" style="width:auto"
+              data-task="${esc(t.id)}" ${t.done?"checked":""}>
+            <span>${esc(t.name)}</span>
+          </label>
+          <div class="muted">Due: ${esc(t.date||"No due date")}</div>
+          <div class="muted">Status: ${t.done?"Completed":"Pending"}</div>
+        </div>
+        <button class="danger small-btn no-print"
+          data-delete-task="${esc(t.id)}">Delete</button>
+      </div>`
+    ).join("");
+
+  document.querySelectorAll("[data-task]").forEach(x=>{
+    x.addEventListener("change",()=>{
+      const t=store.tasks.find(t=>t.id===x.dataset.task);
+      if(t)t.done=x.checked;
+      save();
+      renderTasks();
+    });
+  });
+
+  document.querySelectorAll("[data-delete-task]").forEach(x=>{
+    x.addEventListener("click",()=>{
+      store.tasks=store.tasks.filter(t=>t.id!==x.dataset.deleteTask);
+      save();
+      renderTasks();
+    });
+  });
+}
+
+/* CHECKLIST */
+
+function renderChecklist(){
+  $("checklistItems").innerHTML=checklistLabels.map((s,i)=>`
+    <label class="check-row">
+      <input type="checkbox" data-check="${i}"
+        ${store.checklist[i]?"checked":""}>
+      <span>
+        ${esc(s)}
+        <small style="display:block;color:#71809c;margin-top:3px">
+          ${store.checklist[i]?"Completed":"Pending"}
+        </small>
+      </span>
+    </label>`
+  ).join("");
+
+  document.querySelectorAll("[data-check]").forEach(x=>{
+    x.addEventListener("change",()=>{
+      store.checklist[x.dataset.check]=x.checked;
+      save();
+      renderChecklist();
+    });
+  });
+}
+
+/* DETAILED MCQ HISTORY */
+
+function renderHistory(){
+  const entries=store.entries.slice().reverse();
+
+  if(!entries.length){
+    $("historyList").innerHTML=
+      '<p class="empty">No MCQ entries yet.</p>';
+  }else{
+    $("historyList").innerHTML=`
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Entry Time</th>
+              <th>Source / Block</th>
+              <th>Chapter</th>
+              <th>MCQs</th>
+              <th>Time Spent</th>
+              <th>Notes</th>
+              <th class="no-print">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${entries.map(e=>`
+              <tr>
+                <td>${esc(e.date||"—")}</td>
+                <td>${esc(e.time||"Not recorded")}</td>
+                <td>${esc(e.source)}</td>
+                <td>${esc(e.chapter)}</td>
+                <td><b>${fmt(e.quantity)}</b></td>
+                <td>${e.durationMinutes?fmt(e.durationMinutes)+" min":"—"}</td>
+                <td>${esc(e.note||"—")}</td>
+                <td class="no-print">
+                  <button class="danger small-btn"
+                    data-delete-entry="${esc(e.id)}">Delete</button>
+                </td>
+              </tr>`
+            ).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  document.querySelectorAll("[data-delete-entry]").forEach(x=>{
+    x.addEventListener("click",()=>{
+      if(!confirm("Delete this entry?"))return;
+
+      store.entries=store.entries.filter(
+        e=>e.id!==x.dataset.deleteEntry
+      );
+
+      save();
+      renderAll();
+    });
+  });
+
+  const minutes=getTotalMinutes();
+  const questions=totalDone();
+
+  $("totalStudyTime").textContent=fmt(minutes);
+  $("totalSessions").textContent=fmt(store.entries.length);
+  $("averageSession").textContent=
+    store.entries.length?
+    (questions/store.entries.length).toFixed(1):"0";
+}
+
+/* CSV EXPORT */
+
+$("exportCSV").addEventListener("click",()=>{
+  const rows=[
+    ["Date","Entry Time","Source / Block","Chapter","Questions","Time Spent (Minutes)","Notes"],
+    ...store.entries.map(e=>[
+      e.date||"",
+      e.time||"",
+      e.source,
+      e.chapter,
+      e.quantity,
+      e.durationMinutes||0,
+      e.note||""
+    ])
+  ];
+
+  const csv=rows.map(r=>
+    r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")
+  ).join("\n");
+
+  const blob=new Blob(["\uFEFF"+csv],{
+    type:"text/csv;charset=utf-8"
+  });
+
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="JEE_Physics_MCQ_History.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* PDF EXPORT */
+
+function exportPDF(){
+  renderAll();
+
+  const previousTitle=document.title;
+  document.title="JEE Physics Complete Progress Report";
+
+  window.print();
+
+  setTimeout(()=>{
+    document.title=previousTitle;
+  },1000);
+}
+
+/* RESET */
+
+$("resetAll").addEventListener("click",()=>{
+  if(!confirm(
+    "Delete all MCQ entries, checklist ticks and planner tasks? Built-in limits will remain."
+  ))return;
+
+  store=freshStore();
+  save();
+  renderAll();
+  updateLimitInfo();
+
+  alert("Progress reset successfully.");
+});
+
+/* DAILY MOTIVATION */
+
+const messages=[
+  "Your future self will thank you for today's effort.",
+  "One chapter at a time. One question at a time.",
+  "Don't chase perfection. Build consistency.",
+  "Every mistake is a lesson. Every revision is progress.",
+  "Make today count. Your goal is worth the effort.",
+  "Stay curious. Stay disciplined. Keep improving.",
+  "Small steps every day create remarkable progress.",
+  "You are building stronger understanding with every MCQ.",
+  "Focus on today's work, not tomorrow's worries.",
+  "Your preparation is a collection of small victories."
+];
+
+function updateMotivation(){
+  const dayNumber=Math.floor(Date.now()/86400000);
+  $("countdownMessage").textContent=
+    messages[dayNumber%messages.length];
+}
+
+/* COUNTDOWN */
+
+function updateCountdown(){
+  const deadline=
+    new Date("2026-12-31T23:59:59+05:30").getTime();
+
+  const start=
+    new Date("2026-01-01T00:00:00+05:30").getTime();
+
+  const now=Date.now();
+  let diff=deadline-now;
+
+  const total=deadline-start;
+  const elapsed=Math.max(0,Math.min(total,now-start));
+
+  $("countdownBar").style.width=
+    (total?elapsed/total*100:100)+"%";
+
+  if(diff<=0){
+    ["days","hours","minutes","seconds"].forEach(id=>{
+      $(id).textContent="00";
+    });
+    return;
+  }
+
+  const d=Math.floor(diff/86400000);
+  diff%=86400000;
+
+  const h=Math.floor(diff/3600000);
+  diff%=3600000;
+
+  const m=Math.floor(diff/60000);
+  const s=Math.floor((diff%60000)/1000);
+
+  $("days").textContent=String(d).padStart(2,"0");
+  $("hours").textContent=String(h).padStart(2,"0");
+  $("minutes").textContent=String(m).padStart(2,"0");
+  $("seconds").textContent=String(s).padStart(2,"0");
+}
+
+/* INITIALIZATION */
+
+function renderAll(){
+  renderDashboard();
+  renderLimits();
+  renderSources();
+  renderTasks();
+  renderChecklist();
+  renderHistory();
+  updateLimitInfo();
+}
+
+populateForm();
+renderAll();
+updateMotivation();
+updateCountdown();
+
+setInterval(updateCountdown,1000);
+
+</script>
+</body>
+</html>
